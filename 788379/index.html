@@ -1,0 +1,226 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Firefox Orange Highlight Bug</title>
+<link rel="stylesheet" href="bugstyle.css" />
+<script type="text/javascript">
+var onContentLoaded = function() {
+    var COLORS = [ 'black', 'lilac', 'orange', 'yellow' ]; // also 'white'
+    var buttonsElement = document.getElementById('buttons');
+
+    var ColoredElement = function(element, color) {
+        this.domElement = element;
+        this.domElement.classList.add(color);
+        this.color = color;
+    };
+    ColoredElement.prototype = {};
+    ColoredElement.prototype.reset = function(color) {
+        this.domElement.classList.remove(this.color);
+        this.domElement.classList.add(color);
+        this.color = color;
+    };
+    ColoredElement.prototype.attach = function(parent) {
+        parent.appendChild(this.domElement);
+    };
+    ColoredElement.prototype.detach = function() {
+        this.domElement.parentElement.removeChild(this.domElement);
+    };
+
+    var ClickableElement = function(color) {
+        ColoredElement.call(this, document.createElement('a'), color);
+        this.domElement.href='#';
+        // android sometimes delivers events like:
+        // touchstart, <dom mutation> touchcancel, mousedown mouseup
+        // that results in double taps, which is bad.  ignore all mouse*
+        // events on android as a hacky workaround.
+        var isAndroid = !!window.cordovaDetect;
+        ['mousedown', 'touchstart'].forEach(function(evname) {
+            if (isAndroid && evname[0]==='m') { return; }
+            this.domElement.addEventListener(evname,this.highlight.bind(this), false);
+        }.bind(this));
+        ['mouseup','mouseout','touchcancel','touchend'].forEach(function(evname){
+            if (isAndroid && evname[0]==='m') { return; }
+            this.domElement.addEventListener(evname, this.unhighlight.bind(this), false);
+        }.bind(this));
+        this.domElement.addEventListener('click', function(event) {
+            // suppress 'click' event, which would change the history.
+            event.preventDefault();
+        }, false);
+        this.ignoreMouse = false;
+    };
+    ClickableElement.prototype = Object.create(ColoredElement.prototype);
+    ClickableElement.prototype.highlight = function(event) {
+        switch (event.type) {
+        case 'touchstart': this.ignoreMouse = true; break;
+        case 'mousedown': if (this.ignoreMouse) { return; } break;
+        }
+        this.domElement.classList.add('hover');
+        event.preventDefault();
+        if (this.fast && this.ignoreMouse) { this.handleClick(); }
+    };
+    ClickableElement.prototype.unhighlight = function(event) {
+        switch (event.type) {
+        case 'mouseup':
+        case 'mouseout':
+            if (this.ignoreMouse) { return; } break;
+        }
+        this.domElement.classList.remove('hover');
+        event.preventDefault();
+        if (event.type !== 'touchcancel' &&
+            event.type !== 'mouseout' &&
+            !(this.fast && this.ignoreMouse)) {
+            this.handleClick();
+        }
+        this.ignoreMouse = false;
+    };
+
+    var Button = function(color) {
+        ClickableElement.call(this, color);
+        this.attach(buttonsElement);
+        this.fast = true; // fast button response
+    };
+    Button.prototype = Object.create(ClickableElement.prototype);
+    Button.prototype.handleClick = function() {
+        console.log('BUTTON PRESSED! '+this.color);
+    };
+    buttons = [];
+    var createButtons = function() {
+        // remove any existing buttons
+        while (buttons.length > 0) {
+            b = buttons.pop();
+            b.detach();
+            // XXX remove event handlers?
+        }
+        // now create four new buttons
+        var c = COLORS.slice(0); // make a copy
+        c.forEach(function(color) {
+            var b = new Button(color);
+            buttons.push(b);
+            // add event handlers
+        });
+    };
+    createButtons();
+    // multitouch hack
+    var handleMultitouch = function(event) {
+        var changedTouches = event.changedTouches, i, j;
+        for (i=0; i<changedTouches.length; i++) {
+            var touch = changedTouches[i];
+            for (j=0; j<buttons.length; j++) {
+                var button = buttons[j];
+                if (touch.target === button.domElement) {
+                    if (event.type==='touchstart') {
+                        button.domElement.classList.add('hover');
+                        button.handleClick();
+                    } else {
+                        button.domElement.classList.remove('hover');
+                    }
+                }
+            }
+        }
+        event.stopPropagation();
+        event.preventDefault();
+        return false;
+    };
+    ['touchstart', 'touchend', 'touchcancel'].forEach(function(evname) {
+        document.getElementById('buttons').addEventListener(evname,
+                                                            handleMultitouch,
+                                                            true);
+    });
+};
+document.addEventListener("DOMContentLoaded", onContentLoaded, false);
+</script>
+</head>
+
+<body class="n9 game">
+<div id="game"><div id="level" class="level grass">
+ <div id="background">
+  <div class="troposphere">
+   <div class="cloud c2"></div>
+  </div>
+  <div class="stratosphere">
+   <div class="cloud c1"></div>
+   <div class="cloud c2"></div>
+   <div class="cloud c3"></div>
+  </div>
+  <div class="mesosphere">
+   <div class="stars"></div>
+   <div class="satellite1"></div>
+   <div class="satellite2"></div>
+  </div>
+ </div>
+ <div id="nell" class="nells">
+  <div class="ground">
+   <div class="nell"><div class="hair"></div><div class="body"></div><div class="head"></div></div>
+  </div>
+  <div class="troposphere">
+   <div class="hotair">
+    <div class="nellscaler"><div class="nell"><div class="hair"></div><div class="body"></div><div class="head"></div></div></div>
+    <div class="foreground"></div>
+   </div>
+  </div>
+  <div class="stratosphere">
+    <div class="jet">
+     <div class="background"></div>
+     <div class="nellscaler"><div class="nell"><div class="hair"></div><div class="head"></div></div></div>
+     <div class="foreground"></div>
+    </div>
+  </div>
+  <div class="mesosphere">
+   <div class="astronaut">
+    <div class="background"></div>
+    <div class="nellscaler"><div class="nell"><div class="head"></div></div></div>
+    <div class="foreground"></div>
+   </div>
+  </div>
+ </div>
+ <div id="balloons"><div id="b0" class="orange"><div class="payload"></div><div class="balloon"></div></div></div>
+ <div id="sprouts">
+    <div class="award a1 show"></div><div class="award a2"></div><div
+         class="award a3"></div><div class="award a4"></div><div
+         class="award a5"></div><div class="award a6"></div>
+ </div>
+ <div id="ruler">
+   <div class="background"><div class="foreground" style="height:33%"></div></div>
+   <div class="ground">
+    <div class="stars one"></div>
+    <div class="stars two"></div>
+    <div class="stars three"></div>
+   </div>
+   <div class="troposphere">
+    <div class="stars one"></div>
+    <div class="stars two highlight"></div>
+    <div class="stars three"></div>
+   </div>
+   <div class="stratosphere">
+    <div class="stars one"></div>
+    <div class="stars two"></div>
+    <div class="stars three"></div>
+   </div>
+   <div class="mesosphere">
+    <div class="stars one"></div>
+    <div class="stars two"></div>
+    <div class="stars three"></div>
+   </div>
+ </div>
+ <div id="clouds">
+  <div class="bug"></div>
+  <div class="grass"></div>
+  <div class="troposphere"></div>
+  <div class="stratosphere"></div>
+  <div class="mesosphere"></div>
+  <div class="stars"></div>
+ </div>
+ <div id="awards">
+   <div class="strip">
+    <div class="award a1 show"></div><div class="award a2 show"></div><div
+         class="award a3"></div><div class="award a4"></div><div
+         class="award a5"></div><div class="award a6"></div>
+   </div>
+ </div>
+</div></div>
+<div id="buttons">
+</div>
+
+</body>
+</html>
