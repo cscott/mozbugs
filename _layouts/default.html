@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">{% capture top %}{{ site.top }}{% endcapture %}
+<head>
+  <meta charset="utf-8">
+  <title>{% if page.title %} {{ page.title }} | {% endif %} {{site.title}}</title>
+  <!--[if IE]>
+    <script src="{{top}}js/html5.js" />
+  <![endif]-->
+  <link rel="shortcut icon" type="image/x-icon" href="{{top}}favicon.ico" />
+  <link rel="stylesheet" type="text/css" media="screen, projection" charset="utf-8" href="{{top}}css/screen.css" />
+  <link rel="stylesheet" type="text/css" media="screen, projection" charset="utf-8" href="{{top}}css/pygments.css" />
+</head>
+<body>
+<div id="wrap" class="container_12">
+<header class="grid_12 alpha omega">
+{% if site.title %}
+  <h1><a href="{{site.url}}">{{site.title}}</a></h1>
+{% endif %}
+</header>
+<div class="clear"></div>
+<section class="grid_8 alpha omega">
+{{ content }}
+</section>
+<div class="clear"></div>
+<footer>
+<div class="grid_4 alpha">
+  <p>
+    {% if site.author %}{{site.author}} {% endif %}<br/>
+     {% if site.email %}{{site.email}} {% endif %}<br/>
+  </p>
+</div>
+<div class="grid_4">
+  <p>
+    <a href="http://twitter.com/">twitter.com</a><br />
+  </p>
+</div>
+<div class="grid_4 omega">
+</div>
+</footer>
+<div class="clear"></div>
+</div><!-- .container_12 -->
+</body>
+</html>

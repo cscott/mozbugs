@@ -1,5 +1,6 @@
 ---
 title: mozbugs
+layout: default
 ---
 ### Mozilla Bugs
 This set of GitHub Pages demonstrates various bugs found in Mozilla products, for easy reference in the bugzilla tracker.  It was created by C. Scott Ananian (@cscott).
