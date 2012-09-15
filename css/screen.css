@@ -113,3 +113,7 @@ ul.posts
 {
   list-style-type: none;
 }
+
+.main .fixed {
+  text-decoration: line-through;
+}
