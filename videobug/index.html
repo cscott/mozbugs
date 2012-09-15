@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html manifest="app.appcache">
+<head>
+<script type="text/javascript">
+/* indicate progress during appcache download */
+var cache = window.applicationCache;
+cache.addEventListener('downloading', function(e) {
+  document.body.classList.add('downloading');
+}, false);
+cache.addEventListener('cached', function(e) {
+  document.body.classList.remove('downloading');
+}, false);
+cache.addEventListener('updateready', function(e) {
+  document.body.classList.remove('downloading');
+}, false);
+</script>
+<style type="text/css">
+#download { display: none; }
+.downloading #download { display: block; }
+</style>
+</head>
+<body>
+<h1>Video Caching Bug Demo</h1>
+<p>All these files are mentioned in the AppCache manifest and should
+play properly when offline.</p>
+<p id="download"><b>DOWNLOAD IN PROGRESS.</b></p>
+<div><p>Ogg Video</p><video src='manifesto.ogv' controls></video></div>
+<div><p>WebM</p><video src='meetthecubs.webm' controls></video></div>
+<div><p>WebM</p><video src='SpaceBalloon1-1-200k64.webm' poster='SpaceBalloon1-1.jpg' controls></video></div>
+<div><p>MP4</p><video src='SpaceBalloon1-1-baseline.mp4' poster='SpaceBalloon1-1.jpg' controls></video></div>
+</body>
+</html>

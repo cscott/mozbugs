@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html manifest="app.appcache">
+<head>
+<script type="text/javascript">
+/* indicate progress during appcache download */
+var cache = window.applicationCache;
+cache.addEventListener('downloading', function(e) {
+  document.body.classList.add('downloading');
+}, false);
+cache.addEventListener('cached', function(e) {
+  document.body.classList.remove('downloading');
+}, false);
+cache.addEventListener('updateready', function(e) {
+  document.body.classList.remove('downloading');
+}, false);
+</script>
+<style type="text/css">
+#download { display: none; }
+.downloading #download { display: block; }
+</style>
+</head>
+<body>
+<h1>Audio Caching Bug Demo</h1>
+<p>All these files are mentioned in the AppCache manifest and should
+play properly when offline.</p>
+<p id="download"><b>DOWNLOAD IN PROGRESS.</b></p>
+<div><p>Ogg</p><audio src='barrios_gavota.ogg' controls></audio></div>
+<div><p>Webm</p><audio src='barrios_gavota.webm' controls></audio></div>
+<div><p>MP3</p><audio src='barrios_gavota.mp3' controls></audio></div>
+</body>
+</html>
