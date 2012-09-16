@@ -12,6 +12,10 @@ cache.addEventListener('cached', function(e) {
 }, false);
 cache.addEventListener('updateready', function(e) {
   document.body.classList.remove('downloading');
+  if (cache.status == cache.UPDATEREADY) {
+      cache.swapCache();
+      window.location.reload();
+  }
 }, false);
 </script>
 <style type="text/css">
