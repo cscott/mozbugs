@@ -12,9 +12,21 @@ cache.addEventListener('cached', function(e) {
 }, false);
 cache.addEventListener('updateready', function(e) {
   document.body.classList.remove('downloading');
-  if (cache.status == cache.UPDATEREADY) {
-      cache.swapCache();
-      window.location.reload();
+  console.log("updateready event fired: cache status is: "+cache.status);
+  if (cache.status === cache.UPDATEREADY) {
+      console.log("about to call swapCache");
+      try {
+        cache.swapCache();
+        console.log("swapCache() succeeded.");
+        window.location.reload();
+      } catch (e) {
+        console.log("swapCache() failed: "+e);
+        window.setTimeout(function() {
+          console.log("Retrying swapCache()");
+          cache.swapCache();
+          console.log("Retried swapCache() succeeded");
+        }, 0);
+      }
   }
 }, false);
 </script>
