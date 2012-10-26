@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<!--
+  Any copyright is dedicated to the Public Domain.
+  http://creativecommons.org/publicdomain/zero/1.0/
+-->
+    <title>IndexedDB Quota Test</title>
+  </head>
+  <body>
+<h1>IndexedDB Quota Test</h1>
+    <pre id="output"></pre>
+    <script>
+// console.log-alike function that sticks the output in the <pre>
+// element above
+var log = function() {
+    console.log.apply(console, arguments);
+    var str = Array.prototype.map.
+        call(arguments, function(e) { return ''+e; }).join(" ");
+    document.getElementById("output").textContent += str + "\n";
+};
+
+// cross-platform-ism
+var _indexedDB = window.indexedDB || window.webkitIndexedDB ||
+                window.mozIndexedDB;
+
+// create a 1M string
+var onemegabyte = (function() {
+ var s = "x";
+ for (var i=0; i<20; i++) { s += s; }
+ return s;
+})();
+log("Entry length:", onemegabyte.length, "characters");
+
+var DB_NAME = "db";
+var STORE_NAME = "store";
+
+// Create a new 1M database with the given name.
+var make1M = function(name, callback) {
+  var afterDelete = function() {
+    var request = _indexedDB.open(name, 1);
+    request.onblocked = function() { log(name, "open blocked"); };
+    request.onerror = function() { log(name, "open error"); };
+    request.onupgradeneeded = function() {
+      log(name, "open upgradeneeded");
+      // create the object store.
+      var db = request.result;
+      db.createObjectStore(STORE_NAME);
+    };
+    request.onsuccess = function() {
+      log(name, " open success");
+      var db = request.result;
+      db.onabort = function() { log(name, " db abort"); };
+      db.onerror = function() { log(name, " db error"); };
+      db.onversionchange = function() { log(name, " db versionchange"); };
+      var trans = db.transaction(STORE_NAME, "readwrite");
+      var store = trans.objectStore(STORE_NAME);
+      // put 1M bytes into the db
+      var request2 = store.put(onemegabyte, "key");
+      request2.onerror = function() { log(name, "  put error"); };
+      request2.onsuccess = function() {
+        log(name, "  put data");
+        // close database, invoke callback
+        db.close();
+        return callback();
+      };
+    };
+  };
+  // delete the database if it already exists
+  var request = _indexedDB.deleteDatabase(name);
+  request.onsuccess = request.onerror = afterDelete;
+};
+
+log("start");
+// make 10 1M databases, async-style.
+var i=0;
+var doOne = function() {
+  i++;
+  if (i<10) { make1M(DB_NAME+i, doOne); }
+  else { log("done!"); cleanup(); }
+};
+var cleanup = function() {
+  for (var i=1; i<=10; i++) {
+    _indexedDB.deleteDatabase(DB_NAME+i);
+  }
+};
+doOne();
+    </script>
+  </body>
+</html>
