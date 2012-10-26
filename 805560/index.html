@@ -21,7 +21,7 @@ var log = function() {
 };
 
 // cross-platform-ism
-var indexedDB = window.indexedDB || window.webkitIndexedDB ||
+var _indexedDB = window.indexedDB || window.webkitIndexedDB ||
                 window.mozIndexedDB;
 
 // create a 1M string
@@ -38,7 +38,7 @@ var STORE_NAME = "store";
 // Create a new 1M database with the given name.
 var make1M = function(name, callback) {
   var afterDelete = function() {
-    var request = indexedDB.open(name, 1);
+    var request = _indexedDB.open(name, 1);
     request.onblocked = function() { log(name, "open blocked"); };
     request.onerror = function() { log(name, "open error"); };
     request.onupgradeneeded = function() {
@@ -67,7 +67,7 @@ var make1M = function(name, callback) {
     };
   };
   // delete the database if it already exists
-  var request = indexedDB.deleteDatabase(name);
+  var request = _indexedDB.deleteDatabase(name);
   request.onsuccess = request.onerror = afterDelete;
 };
 
@@ -81,7 +81,7 @@ var doOne = function() {
 };
 var cleanup = function() {
   for (var i=1; i<=10; i++) {
-    indexedDB.deleteDatabase(DB_NAME+i);
+    _indexedDB.deleteDatabase(DB_NAME+i);
   }
 };
 doOne();
