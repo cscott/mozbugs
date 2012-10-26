@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<!--
+  Any copyright is dedicated to the Public Domain.
+  http://creativecommons.org/publicdomain/zero/1.0/
+-->
+    <title>IndexedDB Quota Test</title>
+  </head>
+  <body>
+<h1>IndexedDB Quota Test</h1>
+    <pre id='output'></pre>
+    <script>
+var log = function() {
+    console.log.apply(console, arguments);
+    var str = Array.prototype.map.
+        call(arguments, function(e) { return ''+e; }).join(' ');
+    document.getElementById('output').textContent += str + '\n';
+};
+log("start");
+var indexedDB = window.indexedDB || window.webkitIndexedDB ||
+                window.mozIndexedDB;
+var request = indexedDB.open("Test");
+request.onblocked = function() { log("blocked"); };
+request.onupgradeneeded = function() { log("upgradeneeded"); };
+request.onerror = function() { log("error"); };
+request.onsuccess = function() { log("success"); };
+log("done");
+    </script>
+  </body>
+</html>
