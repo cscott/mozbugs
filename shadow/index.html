@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<!--
+  Any copyright is dedicated to the Public Domain.
+  http://creativecommons.org/publicdomain/zero/1.0/
+-->
+    <title>Firefox shadowed variable test</title>
+  </head>
+  <body>
+<h1>IndexedDB Quota Test</h1>
+    <pre id="output"></pre>
+    <script>
+// console.log-alike function that sticks the output in the <pre>
+// element above
+var log = function() {
+    console.log.apply(console, arguments);
+    var str = Array.prototype.map.
+        call(arguments, function(e) { return ''+e; }).join(" ");
+    document.getElementById("output").textContent += str + "\n";
+};
+
+// 'window.indexedDB' is different from 'var indexedDB'... except on Firefox
+
+log("The following variables should all be defined!");
+var navigator = window.navigator;
+log("navigator", navigator, window.navigator);
+var decodeURI = window.decodeURI;
+log("decodeURI", decodeURI, window.decodeURI);
+
+log();
+
+log("At least one set of these should be defined:");
+var indexedDB = window.indexedDB;
+log("indexedDB", indexedDB, window.indexedDB);
+var mozIndexedDB = window.mozIndexedDB;
+log("mozIndexedDB", mozIndexedDB, window.mozIndexedDB);
+var webkitIndexedDB = window.webkitIndexedDB;
+log("webkitIndexedDB", webkitIndexedDB, window.webkitIndexedDB);
+
+log();
+
+log("At least one set of these should be defined:");
+var requestAnimationFrame = window.requestAnimationFrame;
+log("requestAnimationFrame", requestAnimationFrame, window.requestAnimationFrame);
+var mozRequestAnimationFrame = window.mozRequestAnimationFrame;
+log("mozRequestAnimationFrame", mozRequestAnimationFrame, window.mozRequestAnimationFrame);
+var webkitRequestAnimationFrame = window.webkitRequestAnimationFrame;
+log("webkitRequestAnimationFrame", webkitRequestAnimationFrame, window.webkitRequestAnimationFrame);
+
+    </script>
+  </body>
+</html>
